@@ -1,3 +1,4 @@
+import Resume from "../models/Resume.js";
 import User from "../models/User.js";
 
 export const getAllUsers = async (req, res) => {
@@ -65,3 +66,54 @@ export const getAllUsersWithResume = async (req, res) => {
     }
 };
 
+export const getUserResumes = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId, "-password");
+        console.log("Fetching resumes for user:", user);
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" });
+        }
+        // Fetch resumes for the user latest first
+        const resumes = await Resume.find({ user: user._id }).sort({ uploadedAt: -1 });
+        res.json({ user, resumes });
+    } catch (err) {
+        res.status(500).json({ msg: "Error fetching resumes" });
+    }
+};
+export const getUsersResume = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId, "-password");
+        console.log("Fetching resumes for user:", user);
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" });
+        }
+        // Fetch resumes for the user
+        const resume = await Resume.findOne({ user: user._id, _id: req.params.resumeId });
+        res.json({ user, resume });
+    } catch (err) {
+        res.status(500).json({ msg: "Error fetching resumes" });
+    }
+};
+
+export const updateUserResumeStatus = async (req, res) => {
+
+    try {
+        const status = req.params.status; // "approve" or "reject"
+        const resumeId = req.params.resumeId;
+        const userId = req.params.userId;
+        if (!["approve", "reject"].includes(status)) {
+            return res.status(400).json({ msg: "Invalid status" });
+        }
+        const resume = await Resume.findByIdAndUpdate(
+            req.params.resumeId,
+            { resumeStatus: status },
+            { new: true }
+        );
+        if (!resume) {
+            return res.status(404).json({ msg: "Resume not found" });
+        }
+        res.json({ msg: `Resume ${status} successfully`, resume });
+    } catch (err) {
+        res.status(500).json({ msg: "Failed to update resume status" });
+    }
+}

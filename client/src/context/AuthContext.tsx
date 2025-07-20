@@ -6,7 +6,9 @@ import {
   type ReactNode,
 } from "react";
 
-type UserType = {
+import Cookies from "js-cookie";
+
+export type UserType = {
   id: string;
   name: string;
   email: string;
@@ -64,11 +66,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
   };
+  // const navigate = useNavigate();
 
-  const logout = () => {
+  const logout = async () => {
     setUser(null);
     setToken(null);
     localStorage.clear();
+    Cookies.remove("user");
+    Cookies.remove("token");
   };
 
   const setTheme = (newTheme: "light" | "dark") => {

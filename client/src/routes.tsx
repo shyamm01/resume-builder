@@ -17,6 +17,8 @@ import UserList from "./pages/admin/UserList";
 import ResumeManager from "./pages/admin/ResumeManager";
 
 import ProtectedRoute from "./components/ProtectedRoute";
+import ViewUserResume from "./pages/admin/ViewUserResume";
+import UserResumeView from "./pages/admin/UserResumeView";
 
 const routes = createBrowserRouter(
   createRoutesFromElements(
@@ -33,6 +35,11 @@ const routes = createBrowserRouter(
         <Route path="admin/dashboard" element={<AdminDashboard />} />
         <Route path="admin/users" element={<UserList />} />
         <Route path="admin/resumes" element={<ResumeManager />} />
+        <Route path="admin/resumes/:userId" element={<ViewUserResume />} />
+        <Route
+          path="admin/resumes/:userId/:resumeId"
+          element={<UserResumeView />}
+        />
       </Route>
     </Route>
   )

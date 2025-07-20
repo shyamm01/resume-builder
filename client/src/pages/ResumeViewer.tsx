@@ -3,6 +3,7 @@ import * as pdfjsLib from "pdfjs-dist";
 import { baseUrl, useApi } from "../lib/api";
 import { toast } from "sonner";
 import "pdfjs-dist/web/pdf_viewer.css";
+import PdfViewer from "../components/PdfViewer";
 
 // Set the correct PDF.js worker path
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
@@ -74,21 +75,12 @@ export default function ResumeViewer() {
   }, [resumeUrl]);
 
   return (
-    <div className="max-w-3xl mx-auto mt-10 p-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded shadow transition-colors">
+    <div className="max-w-3xl mx-auto my-10 p-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded shadow transition-colors">
       <h2 className="text-2xl font-bold mb-4">Your Uploaded Resume</h2>
       {loading && <p>Loading PDF...</p>}
-      {!loading && resumeUrl && (
-        <>
-          <canvas ref={canvasRef} className="border rounded shadow" />
-          <a
-            href={resumeUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block mt-4 text-blue-600 dark:text-blue-400 underline text-sm"
-          >
-            View full resume in new tab
-          </a>
-        </>
+      {!loading && resumeUrl && <PdfViewer url={resumeUrl} />}
+      {!loading && !resumeUrl && (
+        <p className="text-red-500">No resume found. Please upload one.</p>
       )}
     </div>
   );

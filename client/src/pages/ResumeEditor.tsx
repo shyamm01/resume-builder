@@ -1,46 +1,15 @@
-import { useEffect, useRef, useState } from "react";
-import * as pdfjsLib from "pdfjs-dist";
+import { useEffect, useState } from "react";
 import { baseUrl, useApi } from "../lib/api";
 import { toast } from "sonner";
-
-// Set PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
+import PdfViewer from "../components/PdfViewer";
 
 export default function ResumeEditor() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
-  const resumeCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const api = useApi();
-
-  const renderPDFToCanvas = async (
-    url: string,
-    canvas: HTMLCanvasElement | null
-  ) => {
-    if (!canvas) return;
-    try {
-      const loadingTask = pdfjsLib.getDocument(url);
-      const pdf = await loadingTask.promise;
-      const page = await pdf.getPage(1);
-      const viewport = page.getViewport({ scale: 1.2 });
-
-      const context = canvas.getContext("2d");
-      if (!context) return;
-
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-
-      await page.render({
-        canvasContext: context,
-        viewport,
-      }).promise;
-    } catch (error: any) {
-      toast.error("Failed to render PDF: " + error.message);
-    }
-  };
 
   const fetchResume = async () => {
     try {
@@ -55,18 +24,6 @@ export default function ResumeEditor() {
   useEffect(() => {
     fetchResume();
   }, []);
-
-  useEffect(() => {
-    if (previewUrl) {
-      renderPDFToCanvas(previewUrl, previewCanvasRef.current);
-    }
-  }, [previewUrl]);
-
-  useEffect(() => {
-    if (resumeUrl) {
-      renderPDFToCanvas(resumeUrl, resumeCanvasRef.current);
-    }
-  }, [resumeUrl]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -90,7 +47,7 @@ export default function ResumeEditor() {
       const { data } = await api.post("/resume", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setResumeUrl(data.resumeUrl);
+      setResumeUrl(`${baseUrl}/${data.resumeUrl}`);
       toast.success("Resume uploaded successfully!");
       setSelectedFile(null);
       setPreviewUrl(null);
@@ -116,7 +73,7 @@ export default function ResumeEditor() {
       {previewUrl && (
         <div className="border rounded p-4 mt-4 bg-gray-50 dark:bg-gray-800">
           <p className="font-medium mb-2">Preview (not yet uploaded):</p>
-          <canvas ref={previewCanvasRef} className="w-full border" />
+          <PdfViewer url={previewUrl} />
         </div>
       )}
 
@@ -132,9 +89,9 @@ export default function ResumeEditor() {
         <div className="mt-8">
           <p className="font-medium mb-2">Your uploaded resume:</p>
           <div className="border rounded p-4 bg-gray-50 dark:bg-gray-800">
-            <canvas ref={resumeCanvasRef} className="w-full border" />
+            <PdfViewer url={resumeUrl} />
             <a
-              href={`${baseUrl}/${resumeUrl}`}
+              href={resumeUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2 block text-blue-600 dark:text-blue-400 underline text-sm"

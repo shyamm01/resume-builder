@@ -7,8 +7,10 @@ const resumeSchema = new mongoose.Schema({
     originalName: { type: String },
     fileHash: { type: String, required: true },
     version: { type: Number, default: 1 },
-    isApproved: { type: Boolean, default: false },
+    resumeStatus: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
     uploadedAt: { type: Date, default: Date.now },
+}, {
+    timestamps: true,
 });
 
 export default mongoose.model("Resume", resumeSchema);

@@ -1,28 +1,20 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useApi } from "../../lib/api";
-
-interface ResumeUser {
-  _id: string;
-  name: string;
-  resumeUrl?: string;
-  resumeStatus?: "Pending" | "Approved" | "Rejected";
-  theme?: "light" | "dark";
-}
+import { baseUrl, useApi } from "../../lib/api";
+import { Link } from "react-router";
 
 export default function ResumeManager() {
-  const [users, setUsers] = useState<ResumeUser[]>([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
   const api = useApi();
+  console.log(users);
 
   const fetchUsersWithResumes = async () => {
     try {
       const { data } = await api.get("/admin/users-with-resumes");
-      console.log("Fetched users with resumes:", data.usersWithResumes);
       setUsers(data.usersWithResumes);
     } catch (error) {
-      console.error("Failed to fetch users:", error);
       toast.error("Failed to load users");
     } finally {
       setLoading(false);
@@ -107,37 +99,34 @@ export default function ResumeManager() {
                     {user.name}
                   </td>
                   <td className="p-3 border dark:border-gray-700">
-                    {user.resumeUrl ? (
-                      <a
-                        href={user.resumeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 dark:text-blue-400 underline"
-                      >
-                        View
-                      </a>
-                    ) : (
-                      "-"
-                    )}
+                    <Link
+                      to={`/admin/resumes/${user._id}`}
+                      className="text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      View
+                    </Link>
                   </td>
                   <td className="p-3 border dark:border-gray-700">
                     <span
                       className={`px-2 py-1 text-sm rounded ${
-                        user.resumeStatus === "Approved"
+                        user.resumeData?.resumeStatus === "Approved"
                           ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
-                          : user.resumeStatus === "Rejected"
+                          : user.resumeData?.resumeStatus === "Rejected"
                           ? "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100"
                           : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
                       }`}
                     >
-                      {user.resumeStatus || "Pending"}
+                      {user.resumeData?.resumeStatus || "Pending"}
                     </span>
                   </td>
                   <td className="p-3 border dark:border-gray-700">
                     <select
                       value={user.theme || "light"}
-                      onChange={(e) => updateTheme(user._id, e.target.value)}
-                      className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800 dark:text-white"
+                      onChange={(e) =>
+                        e.target.value !== user.theme &&
+                        updateTheme(user._id, e.target.value)
+                      }
+                      className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
                       disabled={updatingUserId === user._id}
                     >
                       <option value="light">Light</option>

@@ -1,8 +1,29 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import useAuth from "../hooks/useAuth";
+import { useApi } from "../lib/api";
+import { toast } from "sonner";
 
 export default function Header() {
   const { user, logout } = useAuth();
+  const api = useApi();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const response = await api.post("/auth/logout");
+    if (response.status === 200) {
+      logout();
+      console.log("Logout successful");
+      navigate("/login", { replace: true }); // Redirect to login page
+    } else if (response.status === 401) {
+      console.error("Unauthorized access, please login again");
+      navigate("/login", { replace: true }); // Redirect to login page
+    } else if (response.status === 500) {
+      console.error("Server error during logout");
+      toast.error("Server error, please try again later.");
+    } else {
+      console.error("Logout failed", response);
+    }
+  };
 
   return (
     <header className="bg-blue-700 dark:bg-gray-900 text-white dark:text-gray-100 px-6 py-4 flex justify-between items-center transition-colors duration-300">
@@ -59,7 +80,7 @@ export default function Header() {
             </>
           )}
           <button
-            onClick={logout}
+            onClick={() => handleLogout()}
             className="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 px-3 py-1 rounded text-sm transition-colors"
           >
             Logout
