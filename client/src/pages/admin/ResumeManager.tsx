@@ -36,8 +36,19 @@ export default function ResumeManager() {
 
   const handleApprove = async (userId: string) => {
     try {
+      const confirmed = confirm(
+        "Are you sure you want to approve this resume?"
+      );
+      if (!confirmed) return;
+      const user = users.find((user) => user._id === userId);
+      console.log("User:", user);
+      const resumeId = user?.resumeData?.resumeId;
+      if (!resumeId) {
+        toast.error("Resume ID not found for this user");
+        return;
+      }
       setUpdatingUserId(userId);
-      await api.put(`/api/admin/user/${userId}/resume/approve`);
+      await api.put(`/admin/resumes/${userId}/${resumeId}/approve`);
       toast.success("Resume approved");
       await fetchUsersWithResumes();
     } catch (err) {
@@ -99,12 +110,7 @@ export default function ResumeManager() {
                     {user.name}
                   </td>
                   <td className="p-3 border dark:border-gray-700">
-                    <Link
-                      to={`/admin/resumes/${user._id}`}
-                      className="text-blue-600 dark:text-blue-400 hover:underline"
-                    >
-                      View
-                    </Link>
+                    {user.resumeData?.length}
                   </td>
                   <td className="p-3 border dark:border-gray-700">
                     <span
@@ -134,20 +140,12 @@ export default function ResumeManager() {
                     </select>
                   </td>
                   <td className="p-3 border dark:border-gray-700 space-x-2">
-                    <button
-                      onClick={() => handleApprove(user._id)}
-                      disabled={updatingUserId === user._id}
-                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded transition disabled:opacity-50"
+                    <Link
+                      to={`/admin/resumes/${user._id}`}
+                      className="text-blue-600 dark:text-blue-400 hover:underline"
                     >
-                      Approve
-                    </button>
-                    <button
-                      onClick={() => handleReject(user._id)}
-                      disabled={updatingUserId === user._id}
-                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded transition disabled:opacity-50"
-                    >
-                      Reject
-                    </button>
+                      View
+                    </Link>
                   </td>
                 </tr>
               ))}
