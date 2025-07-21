@@ -14,7 +14,7 @@ connectDB();
 
 const app = express();
 
-// in your Express setup file (e.g., app.js)
+
 app.use(cookieParser());
 
 app.use(cors({
