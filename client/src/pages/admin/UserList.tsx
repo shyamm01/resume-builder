@@ -33,7 +33,7 @@ export default function UserList() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-8 transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-950 dark:text-gray-100 p-8 transition-colors duration-300">
       <h2 className="text-3xl font-bold mb-6 text-center">All Users</h2>
 
       {loading ? (
@@ -51,6 +51,7 @@ export default function UserList() {
                 <th className="p-3 border dark:border-gray-700">Email</th>
                 <th className="p-3 border dark:border-gray-700">Role</th>
                 <th className="p-3 border dark:border-gray-700">Theme</th>
+                <th className="p-3 border dark:border-gray-700">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-900">
@@ -59,17 +60,25 @@ export default function UserList() {
                   key={user._id}
                   className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
-                  <td className="p-3 border dark:border-gray-700">
+                  <td className="p-3 border dark:border-gray-700 text-center">
                     {user.name}
                   </td>
-                  <td className="p-3 border dark:border-gray-700">
+                  <td className="p-3 border dark:border-gray-700 text-center">
                     {user.email}
                   </td>
-                  <td className="p-3 border dark:border-gray-700 capitalize">
+                  <td className="p-3 border dark:border-gray-700 text-center capitalize">
                     {user.role}
                   </td>
-                  <td className="p-3 border dark:border-gray-700 capitalize">
+                  <td className="p-3 border dark:border-gray-700 text-center capitalize">
                     {user.theme || "-"}
+                  </td>
+                  <td className="p-3 border dark:border-gray-700 text-center">
+                    <button className="text-blue-500 hover:underline">
+                      Edit
+                    </button>
+                    <button className="text-red-500 hover:underline ml-2">
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}
